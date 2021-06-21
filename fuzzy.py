@@ -3,10 +3,19 @@ import skfuzzy as fuzz
 import pandas as pd
 import tkinter as gui
 
-from tkinter import  ttk
-from tkinter import  Menu
+
+
+from tkinter import *
+
+from tkinter import Menu
 from skfuzzy import control as ctrl
 from tkinter import filedialog
+from pandastable import Table
+from tkintertable import TableCanvas
+from tkinter import messagebox as msg
+
+
+
 
 B = pd.DataFrame()
 
@@ -30,14 +39,7 @@ excellent_parameter = [65, 80, 100, 100]
 
 
 # Main program code
-def importstudentdata():
-    global B
-    filename = filedialog.askopenfilename(initialdir="/",title="Select a student data file",
-                                          filetypes=(("Excel file","*.xlsx"),("all files","*.*")))
 
-    B = pd.read_excel(filename,sheet_name=0,header=0,index_col= False,keep_default_na=True)
-    print(B)
-    return B
 
 
 # Gui code
@@ -52,6 +54,32 @@ window['background']='#97C1EA'
 
 menuBar = Menu(window)
 window.config(menu=menuBar)
+
+
+def importstudentdata():
+    global B
+    filename = filedialog.askopenfilename(initialdir="/", title="Select a student data file",
+                                          filetypes=(("Excel file", "*.xlsx"), ("all files", "*.*")))
+
+    B = pd.read_excel(filename, sheet_name=0, header=0, index_col=False, keep_default_na=True)
+
+    if (len(B) == 0):
+        msg.showinfo('No records ', 'No records found')
+    else:
+        pass
+
+    file_display_frame = Frame(window, height=10, width=20)
+    #file_display_frame.pack(fill=BOTH, padx=5, pady=10)
+
+    file_display_frame.pack(fill=BOTH, side=LEFT, padx=5)
+
+    #file_display_frame.pack(side=LEFT)
+    table = Table(file_display_frame, dataframe=B,  read_only= True)
+    table.show()
+
+
+    print(B)
+    return B
 
 #file Menu
 fileMenu = Menu(menuBar,tearoff=0)
