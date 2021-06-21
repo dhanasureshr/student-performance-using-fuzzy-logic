@@ -173,8 +173,8 @@ def compute_performance():
 
 
 # Buttons
-gui.Button(window,text="compute performance", command=compute_performance).grid(row=10,column =1)
-
+b = gui.Button(window,text="compute performance", command=compute_performance)
+b.pack()
 
 
 
