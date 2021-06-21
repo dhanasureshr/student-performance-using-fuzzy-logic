@@ -1,8 +1,12 @@
 import numpy as np
 import skfuzzy as fuzz
-from skfuzzy import control as ctrl
 import pandas as pd
 import tkinter as gui
+
+from tkinter import  ttk
+from tkinter import  Menu
+from skfuzzy import control as ctrl
+
 
 
 
@@ -128,17 +132,33 @@ def compute_performance():
 
     print(performance_result)
 
-
+def importstudentdata():
+    print("imported data sucessfully")
 # end of Main program code
 
 
 
+#window properties
 window = gui.Tk()
 width= window.winfo_screenwidth()
 height= window.winfo_screenheight()
 window.geometry("%dx%d" % (width,height))
 window.title("Student Performance analysis")
 window['background']='#97C1EA'
+
+# creating menu bar
+
+menuBar = Menu(window)
+window.config(menu=menuBar)
+
+#file Menu
+fileMenu = Menu(menuBar,tearoff=0)
+fileMenu.add_command(label="Import Student data", command=importstudentdata)
+fileMenu.add_separator()
+menuBar.add_cascade(label="File",menu=fileMenu)
+
+
+
 window.mainloop()
 
 
