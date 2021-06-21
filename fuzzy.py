@@ -2,12 +2,9 @@ import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 import pandas as pd
+import tkinter as gui
 
 
-
-# test code
-
-# end of test code
 
 # Main program code
 
@@ -136,5 +133,13 @@ def compute_performance():
 
 
 
+window = gui.Tk()
+width= window.winfo_screenwidth()
+height= window.winfo_screenheight()
+window.geometry("%dx%d" % (width,height))
+window.title("Student Performance analysis")
+window['background']='#97C1EA'
+window.mainloop()
 
-compute_performance()
+
+
