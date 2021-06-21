@@ -53,14 +53,13 @@ window['background']='#97C1EA'
 
 file_display_frame = LabelFrame(window,text="Student data")
 file_display_frame.pack(fill="both", side=LEFT, padx=5)
-file_display_frame.place(bordermode=OUTSIDE,height=650, width=500)
+file_display_frame.place(bordermode=INSIDE,height=650, width=500)
 
 
 # creating menu bar
 
 menuBar = Menu(window)
 window.config(menu=menuBar)
-
 
 def importstudentdata():
     global B
@@ -76,11 +75,8 @@ def importstudentdata():
     else:
         pass
 
-    #file_display_frame = Frame(window, height=10, width=20)
-    #file_display_frame.pack(fill=BOTH, side=LEFT, padx=5)
-
-
     table = Table(file_display_frame, dataframe=B, read_only= True)
+
     table.show()
 
 
@@ -213,6 +209,8 @@ def compute_performance():
         r = pd.read_excel('output.xlsx', sheet_name=0, header=0, index_col=False, keep_default_na=True)
         table = Table(file_display_frame, dataframe=r, read_only=True)
         table.show()
+
+
 
         print(result_data_frame)
 
