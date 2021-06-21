@@ -6,15 +6,10 @@ import tkinter as gui
 from tkinter import  ttk
 from tkinter import  Menu
 from skfuzzy import control as ctrl
+from tkinter import filedialog
 
+B = pd.DataFrame()
 
-
-
-# Main program code
-
-#student_data_path = r'D:\BATCH 8 PROJECT\student_data_set\student_data.xlsx'
-student_data_path = r'D:\BATCH 8 PROJECT\student_data_set\sutdent_data_twovalues.xlsx'
-data = pd.read_excel(student_data_path,sheet_name=0,header=0,index_col= False,keep_default_na=True)
 
 ATTENDANCE = 'Attendance'
 PERFORMANCE = 'Performance'
@@ -31,6 +26,47 @@ good_parameter = [40, 50, 60, 70]
 v_good_parameter = [50, 60, 70, 80]
 excellent_parameter = [65, 80, 100, 100]
 
+
+
+
+# Main program code
+def importstudentdata():
+    global B
+    filename = filedialog.askopenfilename(initialdir="/",title="Select a student data file",
+                                          filetypes=(("Excel file","*.xlsx"),("all files","*.*")))
+
+    B = pd.read_excel(filename,sheet_name=0,header=0,index_col= False,keep_default_na=True)
+    print(B)
+    return B
+
+
+# Gui code
+window = gui.Tk()
+width= window.winfo_screenwidth()
+height= window.winfo_screenheight()
+window.geometry("%dx%d" % (width,height))
+window.title("Student Performance analysis")
+window['background']='#97C1EA'
+
+# creating menu bar
+
+menuBar = Menu(window)
+window.config(menu=menuBar)
+
+#file Menu
+fileMenu = Menu(menuBar,tearoff=0)
+path = fileMenu.add_command(label="Import Student data", command=importstudentdata)
+
+
+print(path)
+# crating data frame form the imported file
+
+
+
+fileMenu.add_separator()
+menuBar.add_cascade(label="File",menu=fileMenu)
+
+# compute fuzzy code
 
 def compute_fuzzy(attend, intr_mark, extn_mark):
     intrn_marks = ctrl.Antecedent(np.arange(0, 105, 5), INTERNAL_MARKS)
@@ -127,39 +163,29 @@ def compute_fuzzy(attend, intr_mark, extn_mark):
     #return performance.view(sim=perf_analysis)
     return str(perf_analysis.output[PERFORMANCE])
 
+
+
+# compute performance
 def compute_performance():
-    performance_result = data[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
+    performance_result = B[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
 
     print(performance_result)
 
-def importstudentdata():
-    print("imported data sucessfully")
-# end of Main program code
 
+# Buttons
+gui.Button(window,text="compute performance", command=compute_performance).grid(row=10,column =1)
 
-
-#window properties
-window = gui.Tk()
-width= window.winfo_screenwidth()
-height= window.winfo_screenheight()
-window.geometry("%dx%d" % (width,height))
-window.title("Student Performance analysis")
-window['background']='#97C1EA'
-
-# creating menu bar
-
-menuBar = Menu(window)
-window.config(menu=menuBar)
-
-#file Menu
-fileMenu = Menu(menuBar,tearoff=0)
-fileMenu.add_command(label="Import Student data", command=importstudentdata)
-fileMenu.add_separator()
-menuBar.add_cascade(label="File",menu=fileMenu)
 
 
 
 window.mainloop()
+
+
+# end of Gui code
+
+
+
+# end of Main program code
 
 
 
