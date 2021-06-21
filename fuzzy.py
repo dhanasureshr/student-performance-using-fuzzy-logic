@@ -6,7 +6,6 @@ import tkinter as gui
 
 
 from tkinter import *
-
 from tkinter import Menu
 from skfuzzy import control as ctrl
 from tkinter import filedialog
@@ -18,6 +17,8 @@ from tkinter import messagebox as msg
 
 
 B = pd.DataFrame()
+
+s = None
 
 
 ATTENDANCE = 'Attendance'
@@ -50,6 +51,11 @@ window.geometry("%dx%d" % (width,height))
 window.title("Student Performance analysis")
 window['background']='#97C1EA'
 
+file_display_frame = LabelFrame(window,text="Student data")
+file_display_frame.pack(fill="both", side=LEFT, padx=5)
+file_display_frame.place(bordermode=OUTSIDE,height=650, width=500)
+
+
 # creating menu bar
 
 menuBar = Menu(window)
@@ -58,23 +64,23 @@ window.config(menu=menuBar)
 
 def importstudentdata():
     global B
+    global s
     filename = filedialog.askopenfilename(initialdir="/", title="Select a student data file",
                                           filetypes=(("Excel file", "*.xlsx"), ("all files", "*.*")))
 
-    B = pd.read_excel(filename, sheet_name=0, header=0, index_col=False, keep_default_na=True)
+    s = filename
+    B = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
 
     if (len(B) == 0):
         msg.showinfo('No records ', 'No records found')
     else:
         pass
 
-    file_display_frame = Frame(window, height=10, width=20)
-    #file_display_frame.pack(fill=BOTH, padx=5, pady=10)
+    #file_display_frame = Frame(window, height=10, width=20)
+    #file_display_frame.pack(fill=BOTH, side=LEFT, padx=5)
 
-    file_display_frame.pack(fill=BOTH, side=LEFT, padx=5)
 
-    #file_display_frame.pack(side=LEFT)
-    table = Table(file_display_frame, dataframe=B,  read_only= True)
+    table = Table(file_display_frame, dataframe=B, read_only= True)
     table.show()
 
 
@@ -170,10 +176,6 @@ def compute_fuzzy(attend, intr_mark, extn_mark):
     rule42 = ctrl.Rule(attendance[EXCELLENT] & extrn_marks[V_GOOD] & intrn_marks[EXCELLENT], performance[V_GOOD])
     rule43 = ctrl.Rule(attendance[EXCELLENT] & extrn_marks[EXCELLENT] & intrn_marks[EXCELLENT], performance[EXCELLENT])
 
-     #intrn_marks.view()
-     #attendance.view()
-     #extrn_marks.view()
-     #performance.view()
 
     rule_list = [rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9, rule10, rule11, rule12, rule13, rule14,
                  rule15, rule16, rule17, rule18, rule19, rule20, rule21, rule22, rule23, rule24, rule25, rule26, rule27,
@@ -195,9 +197,24 @@ def compute_fuzzy(attend, intr_mark, extn_mark):
 
 # compute performance
 def compute_performance():
-    performance_result = B[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
 
-    print(performance_result)
+    if (len(B) == 0):
+        msg.showinfo('No record ', 'Import student data')
+    else:
+        performance_result = B[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
+        result_data_frame = pd.DataFrame(performance_result)
+
+        #final_result = pd.concat([B, result_data_frame], ignore_index=True)
+        #final_result.to_excel(s, index=True,index_label="output")
+
+        final_result = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
+        result_data_frame.to_excel(final_result,sheet_name='output')
+        final_result.save()
+        r = pd.read_excel('output.xlsx', sheet_name=0, header=0, index_col=False, keep_default_na=True)
+        table = Table(file_display_frame, dataframe=r, read_only=True)
+        table.show()
+
+        print(result_data_frame)
 
 
 # Buttons
