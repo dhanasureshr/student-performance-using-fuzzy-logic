@@ -3,23 +3,17 @@ import skfuzzy as fuzz
 import pandas as pd
 import tkinter as gui
 
-
-
 from tkinter import *
 from tkinter import Menu
 from skfuzzy import control as ctrl
 from tkinter import filedialog
 from pandastable import Table
-from tkintertable import TableCanvas
 from tkinter import messagebox as msg
 
 
-
-
-B = pd.DataFrame()
-
+Input = pd.DataFrame()
+Output = pd.DataFrame()
 s = None
-
 
 ATTENDANCE = 'Attendance'
 PERFORMANCE = 'Performance'
@@ -36,51 +30,40 @@ good_parameter = [40, 50, 60, 70]
 v_good_parameter = [50, 60, 70, 80]
 excellent_parameter = [65, 80, 100, 100]
 
+def clear_frame_data():
+    table=Table(file_display_frame,dataframe=None,read_only=True)
+    table.show()
 
+def view_input_file():
+    table = Table(file_display_frame, dataframe=Input, read_only=True)
+    table.show()
 
-
-# Main program code
-
-
-
-# Gui code
-window = gui.Tk()
-width= window.winfo_screenwidth()
-height= window.winfo_screenheight()
-window.geometry("%dx%d" % (width,height))
-window.title("Student Performance analysis")
-window['background']='#97C1EA'
-
-file_display_frame = LabelFrame(window,text="Student data")
-file_display_frame.pack(fill="both", side=LEFT, padx=5)
-file_display_frame.place(bordermode=INSIDE,height=650, width=500)
-
-
-# creating menu bar
-
-menuBar = Menu(window)
-window.config(menu=menuBar)
-
+def view_output_file():
+    table = Table(file_display_frame, dataframe=Output, read_only=True)
+    table.show()
 
 def Input_excel_file_reader():
-    global B
+    global Input
     global s
 
-    B = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
+    Input = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
 
-    if (len(B) == 0):
+    if (len(Input) == 0):
         msg.showinfo('No records ', 'No records found')
     else:
-        pass
+        view_input_file()
 
-    table = Table(file_display_frame, dataframe=B, read_only=True)
-    table.show()
+def save_out_put():
+    savefile = filedialog.asksaveasfilename(filetypes=(("Excel files","*.xlsx"), ("All files", "*.*")))
+
+
 
 
 def Out_put_excel_file_reader():
-    r = pd.read_excel('output.xlsx', sheet_name=0, header=0, index_col=False, keep_default_na=True)
-    table = Table(file_display_frame, dataframe=r, read_only=True)
-    table.show()
+    global Output
+    Output = pd.read_excel('output.xlsx', sheet_name=0, header=0, index_col=False, keep_default_na=True)
+    view_output_file()
+
 
 def importstudentdata():
     global B
@@ -101,15 +84,6 @@ def importstudentdata():
 
 
     return s
-
-#file Menu
-fileMenu = Menu(menuBar,tearoff=1)
-fileMenu.add_separator()
-menuBar.add_cascade(label="File",menu=fileMenu)
-path = fileMenu.add_command(label="Import Student data", command=importstudentdata)
-
-
-# compute fuzzy code
 
 def compute_fuzzy(attend, intr_mark, extn_mark):
     intrn_marks = ctrl.Antecedent(np.arange(0, 105, 5), INTERNAL_MARKS)
@@ -202,20 +176,18 @@ def compute_fuzzy(attend, intr_mark, extn_mark):
     #return performance.view(sim=perf_analysis)
     return str(perf_analysis.output[PERFORMANCE])
 
-
-
-# compute performance
 def compute_performance():
 
-    if (len(B) == 0):
+    if (len(Input) == 0):
         msg.showinfo('No record ', 'Import student data')
     else:
-        performance_result = B[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
+        try:
+
+            performance_result = Input[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
+        except:
+            msg.showinfo('invalid file ','import student data')
+
         result_data_frame = pd.DataFrame(performance_result)
-
-        #final_result = pd.concat([B, result_data_frame], ignore_index=True)
-        #final_result.to_excel(s, index=True,index_label="output")
-
         final_result = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
         result_data_frame.to_excel(final_result,sheet_name='output')
         final_result.save()
@@ -223,26 +195,44 @@ def compute_performance():
 
         Out_put_excel_file_reader()
 
+if __name__=="__main__":
+    # Gui code
+    window = gui.Tk()
+    width = window.winfo_screenwidth()
+    height = window.winfo_screenheight()
+    window.geometry("%dx%d" % (width, height))
+    window.title("Student Performance analysis")
+    window['background'] = '#97C1EA'
+
+    file_display_frame = LabelFrame(window, text="Student data")
+    file_display_frame.pack(fill="both", side=LEFT, padx=5)
+    file_display_frame.place(bordermode=INSIDE, height=650, width=500)
+    clear_frame_data()
+
+    # creating menu bar
+
+    menuBar = Menu(window)
+    window.config(menu=menuBar)
+
+    # file Menu
+    fileMenu = Menu(menuBar, tearoff=1)
+    fileMenu.add_separator()
+    menuBar.add_cascade(label="File", menu=fileMenu)
+    path = fileMenu.add_command(label="Import Student data", command=importstudentdata)
+    fileMenu.add_command(label="clear data",command=clear_frame_data)
+    fileMenu.add_command(label="save",command=save_out_put)
+
+    viewMenu = Menu(menuBar, tearoff=1)
+    viewMenu.add_separator()
+    menuBar.add_cascade(label="View", menu=viewMenu)
+    viewMenu.add_command(label="view input file", command=view_input_file)
+    viewMenu.add_command(label="view output file", command=view_output_file)
+
+    # Buttons
+    b = gui.Button(window, text="compute performance", command=compute_performance)
+    b.pack()
 
 
 
-
-
-
-# Buttons
-b = gui.Button(window,text="compute performance", command=compute_performance)
-b.pack()
-
-
-
-window.mainloop()
-
-
-# end of Gui code
-
-
-
-# end of Main program code
-
-
+    window.mainloop()
 
