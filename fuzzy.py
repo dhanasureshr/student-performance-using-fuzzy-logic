@@ -61,13 +61,11 @@ file_display_frame.place(bordermode=INSIDE,height=650, width=500)
 menuBar = Menu(window)
 window.config(menu=menuBar)
 
-def importstudentdata():
+
+def Input_excel_file_reader():
     global B
     global s
-    filename = filedialog.askopenfilename(initialdir="/", title="Select a student data file",
-                                          filetypes=(("Excel file", "*.xlsx"), ("all files", "*.*")))
 
-    s = filename
     B = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
 
     if (len(B) == 0):
@@ -75,26 +73,41 @@ def importstudentdata():
     else:
         pass
 
-    table = Table(file_display_frame, dataframe=B, read_only= True)
-
+    table = Table(file_display_frame, dataframe=B, read_only=True)
     table.show()
 
 
-    print(B)
-    return B
+def Out_put_excel_file_reader():
+    r = pd.read_excel('output.xlsx', sheet_name=0, header=0, index_col=False, keep_default_na=True)
+    table = Table(file_display_frame, dataframe=r, read_only=True)
+    table.show()
+
+def importstudentdata():
+    global B
+    global s
+    filename = filedialog.askopenfilename(initialdir="/", title="Select a student data file",
+                                          filetypes=(("Excel file", "*.xlsx"), ("all files", "*.*")))
+
+    s = filename
+    Input_excel_file_reader()
+
+    #B = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
+    #if (len(B) == 0):
+    #    msg.showinfo('No records ', 'No records found')
+    #else:
+    #    pass
+    #table = Table(file_display_frame, dataframe=B, read_only= True)
+    #table.show()
+
+
+    return s
 
 #file Menu
-fileMenu = Menu(menuBar,tearoff=0)
-path = fileMenu.add_command(label="Import Student data", command=importstudentdata)
-
-
-print(path)
-# crating data frame form the imported file
-
-
-
+fileMenu = Menu(menuBar,tearoff=1)
 fileMenu.add_separator()
 menuBar.add_cascade(label="File",menu=fileMenu)
+path = fileMenu.add_command(label="Import Student data", command=importstudentdata)
+
 
 # compute fuzzy code
 
@@ -206,13 +219,14 @@ def compute_performance():
         final_result = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
         result_data_frame.to_excel(final_result,sheet_name='output')
         final_result.save()
-        r = pd.read_excel('output.xlsx', sheet_name=0, header=0, index_col=False, keep_default_na=True)
-        table = Table(file_display_frame, dataframe=r, read_only=True)
-        table.show()
+
+
+        Out_put_excel_file_reader()
 
 
 
-        print(result_data_frame)
+
+
 
 
 # Buttons
