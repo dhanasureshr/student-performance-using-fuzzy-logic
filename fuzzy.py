@@ -1,7 +1,11 @@
+import threading
+import time
+
 import numpy as np
 import skfuzzy as fuzz
 import pandas as pd
 import tkinter as gui
+import tkinter.ttk as ttk
 
 from tkinter import *
 from tkinter import Menu
@@ -9,10 +13,13 @@ from skfuzzy import control as ctrl
 from tkinter import filedialog
 from pandastable import Table
 from tkinter import messagebox as msg
+from threading import *
 
 
 Input = pd.DataFrame()
 Output = pd.DataFrame()
+result_data_frame = pd.DataFrame()
+
 s = None
 
 ATTENDANCE = 'Attendance'
@@ -48,15 +55,16 @@ def Input_excel_file_reader():
 
     Input = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
 
-    if (len(Input) == 0):
+    if(len(Input) == 0):
         msg.showinfo('No records ', 'No records found')
     else:
         view_input_file()
 
 def save_out_put():
-    savefile = filedialog.asksaveasfilename(filetypes=(("Excel files","*.xlsx"), ("All files", "*.*")))
-
-
+    savefile = filedialog.asksaveasfilename(initialfile='output.xlsx',defaultextension=".xlsx",filetypes=[("All Files", "*.*"), ("Text Documents", "*.xlsx")])
+    final_result = pd.ExcelWriter(savefile, engine='xlsxwriter')
+    result_data_frame.to_excel(final_result, sheet_name='output')
+    final_result.save()
 
 
 def Out_put_excel_file_reader():
@@ -176,14 +184,26 @@ def compute_fuzzy(attend, intr_mark, extn_mark):
     #return performance.view(sim=perf_analysis)
     return str(perf_analysis.output[PERFORMANCE])
 
-def compute_performance():
 
+def startbar():
+    for i in range(5):
+        window.update_idletasks()
+        prograss_bar['value'] += 20
+
+        time.sleep(1)
+
+
+
+def compute_performance():
+    global result_data_frame
+    startbar()
     if (len(Input) == 0):
         msg.showinfo('No record ', 'Import student data')
     else:
         try:
 
             performance_result = Input[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
+
         except:
             msg.showinfo('invalid file ','import student data')
 
@@ -194,6 +214,10 @@ def compute_performance():
 
 
         Out_put_excel_file_reader()
+
+        prograss_bar['value'] = 0
+        window.update_idletasks()
+
 
 if __name__=="__main__":
     # Gui code
@@ -206,7 +230,7 @@ if __name__=="__main__":
 
     file_display_frame = LabelFrame(window, text="Student data")
     file_display_frame.pack(fill="both", side=LEFT, padx=5)
-    file_display_frame.place(bordermode=INSIDE, height=650, width=500)
+    file_display_frame.place(bordermode=INSIDE, height=650, width=300)
     clear_frame_data()
 
     # creating menu bar
@@ -227,6 +251,10 @@ if __name__=="__main__":
     menuBar.add_cascade(label="View", menu=viewMenu)
     viewMenu.add_command(label="view input file", command=view_input_file)
     viewMenu.add_command(label="view output file", command=view_output_file)
+
+    prograss_bar = ttk.Progressbar(window,orient="horizontal", mode="determinate", maximum=100, value=0)
+    prograss_bar.pack()
+
 
     # Buttons
     b = gui.Button(window, text="compute performance", command=compute_performance)
