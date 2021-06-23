@@ -1,12 +1,10 @@
 import threading
 import time
-
 import numpy as np
 import skfuzzy as fuzz
 import pandas as pd
 import tkinter as gui
 import tkinter.ttk as ttk
-
 from tkinter import *
 from tkinter import Menu
 from skfuzzy import control as ctrl
@@ -15,6 +13,7 @@ from pandastable import Table
 from tkinter import messagebox as msg
 from threading import *
 
+#hi this is a test 
 
 Input = pd.DataFrame()
 Output = pd.DataFrame()
@@ -80,15 +79,9 @@ def importstudentdata():
                                           filetypes=(("Excel file", "*.xlsx"), ("all files", "*.*")))
 
     s = filename
+
     Input_excel_file_reader()
 
-    #B = pd.read_excel(s, sheet_name=0, header=0, index_col=False, keep_default_na=True)
-    #if (len(B) == 0):
-    #    msg.showinfo('No records ', 'No records found')
-    #else:
-    #    pass
-    #table = Table(file_display_frame, dataframe=B, read_only= True)
-    #table.show()
 
 
     return s
@@ -205,7 +198,8 @@ def compute_performance():
             performance_result = Input[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
 
         except:
-            msg.showinfo('invalid file ','import student data')
+
+            msg.showinfo('invalid file ', 'import student data')
 
         result_data_frame = pd.DataFrame(performance_result)
         final_result = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
@@ -231,6 +225,7 @@ if __name__=="__main__":
     file_display_frame = LabelFrame(window, text="Student data")
     file_display_frame.pack(fill="both", side=LEFT, padx=5)
     file_display_frame.place(bordermode=INSIDE, height=600, width=350)
+
     clear_frame_data()
 
     # creating menu bar
