@@ -196,12 +196,12 @@ def startbar():
 
 def compute_performance():
     global result_data_frame
-    startbar()
+
     if (len(Input) == 0):
         msg.showinfo('No record ', 'Import student data')
     else:
         try:
-
+            startbar()
             performance_result = Input[["Attendence", "Internal Marks", "External Marks"]].apply(lambda x: compute_fuzzy(*x),axis=1)
 
         except:
@@ -230,7 +230,7 @@ if __name__=="__main__":
 
     file_display_frame = LabelFrame(window, text="Student data")
     file_display_frame.pack(fill="both", side=LEFT, padx=5)
-    file_display_frame.place(bordermode=INSIDE, height=650, width=300)
+    file_display_frame.place(bordermode=INSIDE, height=600, width=350)
     clear_frame_data()
 
     # creating menu bar
@@ -243,22 +243,21 @@ if __name__=="__main__":
     fileMenu.add_separator()
     menuBar.add_cascade(label="File", menu=fileMenu)
     path = fileMenu.add_command(label="Import Student data", command=importstudentdata)
-    fileMenu.add_command(label="clear data",command=clear_frame_data)
-    fileMenu.add_command(label="save",command=save_out_put)
-
+    fileMenu.add_command(label="Save As...",command=save_out_put)
+    fileMenu.add_command(label="Clear Data..", command=clear_frame_data)
     viewMenu = Menu(menuBar, tearoff=1)
     viewMenu.add_separator()
     menuBar.add_cascade(label="View", menu=viewMenu)
     viewMenu.add_command(label="view input file", command=view_input_file)
     viewMenu.add_command(label="view output file", command=view_output_file)
 
-    prograss_bar = ttk.Progressbar(window,orient="horizontal", mode="determinate", maximum=100, value=0)
-    prograss_bar.pack()
+    prograss_bar = ttk.Progressbar(window,orient="horizontal", mode="determinate", maximum=100, length=1270,  value=0)
+    prograss_bar.pack(side=BOTTOM,padx=0,pady= 40)
 
 
     # Buttons
     b = gui.Button(window, text="compute performance", command=compute_performance)
-    b.pack()
+    b.pack(side=TOP,padx=10,pady=20)
 
 
 
